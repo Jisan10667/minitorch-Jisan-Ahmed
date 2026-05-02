@@ -29,33 +29,52 @@ class Module:
     """Base class for all neural network modules."""
     
     def __init__(self):
-        # TODO: Initialize in Task 0.4
-        raise NotImplementedError("Implement in Task 0.4")
+        # Initialize in Task 0.4
+        self._modules: Dict[str, "Module"] = {}
+        self._parameters: Dict[str, Parameter] = {}
+        self.training: bool = True
     
     def modules(self) -> Sequence["Module"]:
         """Return all sub-modules."""
-        raise NotImplementedError("Implement in Task 0.4")
+        m: List["Module"] = list(self.__dict__["_modules"].values())
+        return m
     
     def train(self):
         """Set training mode."""
-        raise NotImplementedError("Implement in Task 0.4")
+        self.training = True
+        for m in self.modules():
+            m.train()
     
     def eval(self):
         """Set evaluation mode."""
-        raise NotImplementedError("Implement in Task 0.4")
+        self.training = False
+        for m in self.modules():
+            m.eval()
     
     def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
         """Return all parameters with names."""
-        raise NotImplementedError("Implement in Task 0.4")
+        res: List[Tuple[str, Parameter]] = []
+        for k, v in self.__dict__["_parameters"].items():
+            res.append((k, v))
+        for mod_name, m in self.__dict__["_modules"].items():
+            for k, v in m.named_parameters():
+                res.append((f"{mod_name}.{k}", v))
+        return res
     
     def parameters(self) -> Sequence[Parameter]:
         """Return all parameters."""
-        raise NotImplementedError("Implement in Task 0.4")
+        return [p for _, p in self.named_parameters()]
     
     def add_parameter(self, name: str, value: Any) -> Parameter:
         """Add a parameter."""
-        raise NotImplementedError("Implement in Task 0.4")
+        p = Parameter(value)
+        self.__dict__["_parameters"][name] = p
+        return p
     
     def __setattr__(self, key: str, value: Any):
         """Custom attribute setter."""
-        raise NotImplementedError("Implement in Task 0.4")
+        if isinstance(value, Parameter):
+            self.__dict__["_parameters"][key] = value
+        elif isinstance(value, Module):
+            self.__dict__["_modules"][key] = value
+        super().__setattr__(key, value)

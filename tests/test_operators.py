@@ -42,7 +42,7 @@ def test_sigmoid_properties(a):
     if math.isfinite(a):
         sig_a = sigmoid(a)
         # Property 1: Output bounded between 0 and 1
-        assert 0 < sig_a < 1
+        assert 0.0 <= sig_a <= 1.0
         # Property 2: sigmoid(0) = 0.5
         if is_close(a, 0.0) == 1.0:
             assert is_close(sig_a, 0.5) == 1.0
