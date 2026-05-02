@@ -204,3 +204,27 @@ class ReLU(ScalarFunction):
         (x,) = ctx.saved_values
         # d(relu)/dx = 1 if x > 0 else 0
         return (d_output if x > 0 else 0.0,)  
+
+
+class Lt(ScalarFunction):
+    """Less-than comparison: z = 1.0 if x < y else 0.0"""
+
+    @staticmethod
+    def forward(ctx: Context, x: float, y: float) -> float:
+        return 1.0 if x < y else 0.0
+
+    @staticmethod
+    def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
+        return 0.0, 0.0
+
+
+class Eq(ScalarFunction):
+    """Equality comparison: z = 1.0 if x == y else 0.0"""
+
+    @staticmethod
+    def forward(ctx: Context, x: float, y: float) -> float:
+        return 1.0 if x == y else 0.0
+
+    @staticmethod
+    def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
+        return 0.0, 0.0

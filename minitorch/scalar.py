@@ -128,6 +128,12 @@ class Scalar(Variable):
     def relu(self) -> Scalar:
         return ReLU.apply(self)
 
+    def lt(self, other: Union[Scalar, float]) -> Scalar:
+        return Lt.apply(self, other)
+
+    def eq(self, other: Union[Scalar, float]) -> Scalar:
+        return Eq.apply(self, other)
+
 
 class Context:
     """
@@ -146,4 +152,4 @@ class Context:
         return self._saved_values
 
 
-from .scalar_functions import Add, Exp, Inv, Log, Mul, Neg, ReLU, Sigmoid
+from .scalar_functions import Add, Eq, Exp, Inv, Log, Lt, Mul, Neg, ReLU, Sigmoid
