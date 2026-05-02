@@ -9,3 +9,8 @@ __version__ = "0.1.0"
 # We'll import our implementations as we build them
 # from .operators import *  # Module 0.1
 # from .module import *     # Module 0.4
+
+from .autodiff import central_difference, topological_sort, backpropagate
+from .scalar import Scalar
+
+
