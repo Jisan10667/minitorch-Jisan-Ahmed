@@ -3,7 +3,7 @@ Automatic differentiation utilities for MiniTorch.
 """
 
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple, Any
+from typing import Callable, Iterable, List, Optional, Sequence, Tuple, Any
 
 
 def central_difference(f: Callable[..., float], *vals: float, arg: int = 0, epsilon: float = 1e-6) -> float:
@@ -135,6 +135,13 @@ def topological_sort(variable: Variable) -> List[Variable]:
     order: List[Variable] = []
     visited: Set[int] = set()
 
+    def parents(var: Variable) -> Iterable[Variable]:
+        if hasattr(var, "parents"):
+            return var.parents
+        if var.history is not None:
+            return var.history.inputs
+        return ()
+
     def visit(var: Variable) -> None:
         # Use id() to handle variables that might compare equal
         var_id = id(var)
@@ -143,10 +150,11 @@ def topological_sort(variable: Variable) -> List[Variable]:
             return
         visited.add(var_id)
 
-        # Visit children first (variables this one depends on)
-        if var.history is not None and var.history.inputs:
-            for input_var in var.history.inputs:  # Q1: Access what?
-                visit(input_var)
+        if var.is_constant():
+            return
+
+        for input_var in parents(var):
+            visit(input_var)
 
         # Add this variable AFTER its children
         order.append(var)  # Q2: Append what?
@@ -165,35 +173,50 @@ def backpropagate(variable: Variable, deriv: float = 1.0) -> None:
         variable: Output variable to differentiate (e.g., loss)
         deriv: Gradient of variable (default 1.0 for scalar loss)
     """
-    # Get variables in topological order
-    sorted_vars = topological_sort(variable)
+    derivatives = {id(variable): deriv}
 
-    # Process in REVERSE topological order (output first)
-    sorted_vars = list(reversed(sorted_vars))  # Q3: Reverse what?
+    for var in reversed(topological_sort(variable)):
+        var_deriv = derivatives.get(id(var))
+        if var_deriv is None:
+            continue
 
-    # Initialize gradient of output
-    variable.derivative = deriv
-
-    for var in sorted_vars:
         if var.is_leaf():
-            # Leaf variables just accumulate gradients, nothing to propagate
+            var.accumulate_derivative(var_deriv)
             continue
 
-        if var.derivative is None:
-            # No gradient reached this node (disconnected)
-            continue
+        if hasattr(var, "chain_rule"):
+            input_grads = var.chain_rule(var_deriv)
+        else:
+            history = var.history
+            assert history is not None
+            assert history.last_fn is not None
+            grads = history.last_fn.backward(history.ctx, var_deriv)
+            input_grads = zip(history.inputs, grads)
 
-        # Get the function that created this variable
-        history = var.history
-        if history is None or history.last_fn is None:
-            continue
+        for input_var, grad in input_grads:
+            if input_var.is_constant():
+                continue
+            key = id(input_var)
+            if key in derivatives:
+                derivatives[key] = derivatives[key] + grad
+            else:
+                derivatives[key] = grad
 
-        # Call backward to get gradients for inputs
-        backward_fn = history.last_fn.backward
-        ctx = history.ctx
-        input_grads = backward_fn(ctx, var.derivative)  # Q4: Pass what context?
+@dataclass
+class Context:
+    """
+    Context class is used by `Function` to store information during the forward pass.
+    """
 
-        # Accumulate gradients to input variables
-        for input_var, grad in zip(history.inputs, input_grads):
-            if grad is not None:
-                input_var.accumulate_derivative(grad)  # Q5: Accumulate what?
+    no_grad: bool = False
+    saved_values: Tuple[Any, ...] = ()
+
+    def save_for_backward(self, *values: Any) -> None:
+        "Store the given `values` if they need to be used during backpropagation."
+        if self.no_grad:
+            return
+        self.saved_values = values
+
+    @property
+    def saved_tensors(self) -> Tuple[Any, ...]:
+        return self.saved_values

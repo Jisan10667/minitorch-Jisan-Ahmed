@@ -10,7 +10,25 @@ __version__ = "0.1.0"
 # from .operators import *  # Module 0.1
 # from .module import *     # Module 0.4
 
-from .autodiff import central_difference, topological_sort, backpropagate
+from .autodiff import central_difference, topological_sort, backpropagate, History
 from .scalar import Scalar
+from .tensor_data import TensorData, IndexingError, UserShape, shape_broadcast
+from .operators import prod
+from .module import Module, Parameter
 
+try:
+    from .tensor import Tensor
+    from .tensor_functions import tensor
+    from .testing import MathTestVariable, grad_check
+    from .tensor_ops import SimpleBackend
+except ImportError:
+    class Tensor:  # type: ignore[no-redef]
+        pass
 
+    class SimpleBackend:  # type: ignore[no-redef]
+        pass
+
+    def tensor(*args, **kwargs):  # type: ignore[no-redef]
+        raise NotImplementedError("Tensor functions are not implemented yet.")
+
+    from .testing import MathTestVariable, grad_check
