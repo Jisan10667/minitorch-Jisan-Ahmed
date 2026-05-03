@@ -1,0 +1,4 @@
+add_mul: ok max_abs_a=0.00e+00 max_abs_b=0.00e+00
+sigmoid_exp: ok max_abs_a=0.00e+00 max_abs_b=0.00e+00
+log_product: ok max_abs_a=0.00e+00 max_abs_b=0.00e+00
+all gradient checks passed within 1e-4

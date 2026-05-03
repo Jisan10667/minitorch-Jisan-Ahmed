@@ -1,0 +1,15 @@
+epoch=000 loss=0.514894 accuracy=73.00%
+epoch=010 loss=0.148727 accuracy=95.00%
+epoch=020 loss=0.118170 accuracy=98.00%
+epoch=030 loss=0.103422 accuracy=98.00%
+epoch=040 loss=0.094044 accuracy=98.00%
+epoch=050 loss=0.087315 accuracy=98.00%
+epoch=060 loss=0.082142 accuracy=98.00%
+epoch=070 loss=0.077983 accuracy=99.00%
+epoch=080 loss=0.074533 accuracy=99.00%
+epoch=090 loss=0.071604 accuracy=99.00%
+epoch=100 loss=0.069071 accuracy=99.00%
+epoch=110 loss=0.066849 accuracy=99.00%
+epoch=119 loss=0.065063 accuracy=99.00%
+final_accuracy=99.00%
+w_x=28.830743 w_y=-0.320074 bias=-14.220390
