@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Callable, Optional, Type
 import numpy as np
 from typing_extensions import Protocol
 
+from minitorch.fast_ops import FastOps
+
 from . import operators
 from .tensor_data import (
     MAX_DIMS,
@@ -368,3 +370,4 @@ def tensor_reduce(
     return _reduce
 
 SimpleBackend = TensorBackend(SimpleOps)
+FastBackend = TensorBackend(FastOps)

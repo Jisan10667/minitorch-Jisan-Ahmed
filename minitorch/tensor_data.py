@@ -6,6 +6,7 @@ import numpy.typing as npt
 from numpy import array, float64
 from typing_extensions import TypeAlias
 from .operators import prod
+from numba import njit
 
 MAX_DIMS = 32
 
@@ -25,7 +26,7 @@ UserIndex: TypeAlias = Sequence[int]
 UserShape: TypeAlias = Sequence[int]
 UserStrides: TypeAlias = Sequence[int]
 
-
+@njit(inline="always")
 def index_to_position(index: Index, strides: Strides) -> int:
     """
     Convert a multidimensional tensor index into a single-dimensional
@@ -38,13 +39,12 @@ def index_to_position(index: Index, strides: Strides) -> int:
     Returns:
         Position in storage
     """
-    # TODO: Implement for Task 2.1
-    # Hint: The position is the dot product of index and strides
-    # Example: index=[1, 2], strides=[4, 1] -> position = 1*4 + 2*1 = 6
-    position = np.dot(index, strides)  # Q1: What operation combines index and strides?
-    return int(position)      # Q2: Return type should be int
+    position = 0
+    for i in range(len(index)):
+        position += index[i] * strides[i]
+    return int(position)
 
-
+@njit(inline="always")
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
     """
     Convert an ordinal (flat position 0...size-1) to a multi-dimensional
@@ -101,7 +101,7 @@ def shape_broadcast(shape_a: UserShape, shape_b: UserShape) -> UserShape:
     remaining = longer[: abs(len(shape_a) - len(shape_b))]
     return tuple(remaining) + tuple(reversed(out))
 
-
+@njit(inline="always")
 def broadcast_index(
     big_index: Index, big_shape: Shape, shape: Shape, out_index: OutIndex
 ) -> None:

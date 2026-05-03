@@ -10,11 +10,23 @@ __version__ = "0.1.0"
 # from .operators import *  # Module 0.1
 # from .module import *     # Module 0.4
 
-from .autodiff import central_difference, topological_sort, backpropagate, History
+from .autodiff import central_difference, History
 from .scalar import Scalar
-from .tensor_data import TensorData, IndexingError, UserShape, shape_broadcast
+from . import operators
+from .tensor_data import TensorData, IndexingError, shape_broadcast
 from .operators import prod
+from .tensor import Tensor
+from .tensor_functions import tensor, zeros, rand
+from .optim import SGD
+from .testing import MathTestVariable, grad_check, sum_practice, mm_practice
+from .tensor_ops import SimpleBackend
 from .module import Module, Parameter
+from .fast_ops import *  # noqa: F401,F403      # Added in Chapter 2
+from .tensor_ops import *  # noqa: F401,F403
+from .cuda_ops import CudaOps                    # NEW: GPU backend
+
+
+
 
 try:
     from .tensor import Tensor
