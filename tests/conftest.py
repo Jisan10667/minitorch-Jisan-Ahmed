@@ -26,4 +26,9 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "task3_3: Task 3.3 CUDA operations")
     config.addinivalue_line("markers", "task3_4: Task 3.4 CUDA matmul")
     config.addinivalue_line("markers", "task3_5: Task 3.5 training benchmark")
-
+    # Module 4 markers
+    config.addinivalue_line("markers", "task4_1: Task 4.1 1D convolution")
+    config.addinivalue_line("markers", "task4_2: Task 4.2 2D convolution")
+    config.addinivalue_line("markers", "task4_3: Task 4.3 pooling")
+    config.addinivalue_line("markers", "task4_4: Task 4.4 softmax and dropout")
+    config.addinivalue_line("markers", "task4_5: Task 4.5 MNIST training")
