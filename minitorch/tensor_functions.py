@@ -7,6 +7,8 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
 
+from .fast_conv import tensor_conv1d, tensor_conv2d
+
 if TYPE_CHECKING:
     from typing import Any, List, Tuple
 
@@ -756,3 +758,123 @@ def tensor(ls: Any, backend=SimpleBackend, requires_grad: bool = False):
         out.requires_grad_(True)
     return out
 """
+
+class Conv1dFun(Function):
+    @classmethod
+    def forward(cls, ctx: Context, input: Tensor, weight: Tensor) -> Tensor:
+        """
+        1D Convolution Forward
+        Args:
+            input: tensor of shape (batch, in_channels, width)
+            weight: tensor of shape (out_channels, in_channels, kernel_width)
+        """
+        ctx.save_for_backward(input, weight)
+        batch, in_channels, width = input.shape
+        out_channels, in_channels2, kw = weight.shape
+
+        # Output width matches input width (kernel slides with implicit zero-padding)
+        out_width = width
+
+        # Allocate output tensor
+        output = input.zeros((batch, out_channels, out_width))
+
+        tensor_conv1d(
+            output._tensor._storage, output.shape, output._tensor.strides, output.size,
+            input._tensor._storage, input.shape, input._tensor.strides,
+            weight._tensor._storage, weight.shape, weight._tensor.strides,
+            False # reverse
+        )
+
+        return output
+
+    @classmethod
+    def backward(cls, ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        input, weight = ctx.saved_values
+        batch, in_channels, width = input.shape
+        out_channels, in_channels2, kw = weight.shape
+        assert in_channels == in_channels2
+
+        grad_input = input.zeros((batch, in_channels, width))
+        weight_t = weight.permute(1, 0, 2).contiguous()
+        tensor_conv1d(
+            grad_input._tensor._storage, grad_input.shape, grad_input._tensor.strides, grad_input.size,
+            grad_output._tensor._storage, grad_output.shape, grad_output._tensor.strides,
+            weight_t._tensor._storage, weight_t.shape, weight_t._tensor.strides,
+            True
+        )
+
+        input_t = input.permute(1, 0, 2).contiguous()
+        grad_output_t = grad_output.permute(1, 0, 2).contiguous()
+        grad_weight_t = weight.zeros((in_channels, out_channels, kw))
+        tensor_conv1d(
+            grad_weight_t._tensor._storage, grad_weight_t.shape, grad_weight_t._tensor.strides, grad_weight_t.size,
+            input_t._tensor._storage, input_t.shape, input_t._tensor.strides,
+            grad_output_t._tensor._storage, grad_output_t.shape, grad_output_t._tensor.strides,
+            False
+        )
+        grad_weight = grad_weight_t.permute(1, 0, 2).contiguous()
+
+        return grad_input, grad_weight
+
+
+class Conv2dFun(Function):
+    @classmethod
+    def forward(cls, ctx: Context, input: Tensor, weight: Tensor) -> Tensor:
+        """
+        2D Convolution Forward
+        Args:
+            input: tensor of shape (batch, in_channels, height, width)
+            weight: tensor of shape (out_channels, in_channels, kernel_height, kernel_width)
+        """
+        ctx.save_for_backward(input, weight)
+        batch, in_channels, height, width = input.shape
+        out_channels, in_channels2, kh, kw = weight.shape
+
+        out_height = height
+        out_width = width
+
+        output = input.zeros((batch, out_channels, out_height, out_width))
+
+        tensor_conv2d(
+            output._tensor._storage, output.shape, output._tensor.strides, output.size,
+            input._tensor._storage, input.shape, input._tensor.strides,
+            weight._tensor._storage, weight.shape, weight._tensor.strides,
+            False
+        )
+
+        return output
+
+    @classmethod
+    def backward(cls, ctx: Context, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        input, weight = ctx.saved_values
+        batch, in_channels, height, width = input.shape
+        out_channels, in_channels2, kh, kw = weight.shape
+
+        # grad_input: convolve grad_output with weight (reversed)
+        grad_input = input.zeros((batch, in_channels, height, width))
+        # Transpose weight: (out_channels, in_channels, kh, kw) -> (in_channels, out_channels, kh, kw)
+        weight_t = weight.permute(1, 0, 2, 3)
+        tensor_conv2d(
+            grad_input._tensor._storage, grad_input.shape, grad_input._tensor.strides, grad_input.size,
+            grad_output._tensor._storage, grad_output.shape, grad_output._tensor.strides,
+            weight_t.contiguous()._tensor._storage, weight_t.shape, weight_t.contiguous()._tensor.strides,
+            True
+        )
+
+        # grad_weight: convolve input with grad_output
+        # Transpose input: (batch, in_channels, h, w) -> (in_channels, batch, h, w)
+        input_t = input.permute(1, 0, 2, 3).contiguous()
+        # Transpose grad_output: (batch, out_channels, h, w) -> (out_channels, batch, h, w)
+        grad_output_t = grad_output.permute(1, 0, 2, 3).contiguous()
+        # Output shape (in_channels, out_channels, kh, kw) so batch loop aligns with input_t dim 0
+        grad_weight_t = weight.zeros((in_channels, out_channels, kh, kw))
+        tensor_conv2d(
+            grad_weight_t._tensor._storage, grad_weight_t.shape, grad_weight_t._tensor.strides, grad_weight_t.size,
+            input_t._tensor._storage, input_t.shape, input_t._tensor.strides,
+            grad_output_t._tensor._storage, grad_output_t.shape, grad_output_t._tensor.strides,
+            False
+        )
+        # Permute back to (out_channels, in_channels, kh, kw)
+        grad_weight = grad_weight_t.permute(1, 0, 2, 3).contiguous()
+
+        return grad_input, grad_weight

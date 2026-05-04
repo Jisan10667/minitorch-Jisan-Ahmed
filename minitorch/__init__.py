@@ -21,10 +21,10 @@ from .optim import SGD
 from .testing import MathTestVariable, grad_check, sum_practice, mm_practice
 from .tensor_ops import SimpleBackend
 from .module import Module, Parameter
-from .fast_ops import *  # noqa: F401,F403      # Added in Chapter 2
-from .fast_conv import *  # noqa: F401,F403
+from .tensor_functions import Conv1dFun, Conv2dFun  # NEW: convolution autodiff wrappers
+from .fast_ops import *  # noqa: F401,F403
 from .tensor_ops import *  # noqa: F401,F403
-from .cuda_ops import CudaOps                    # NEW: GPU backend
+from .cuda_ops import CudaOps
 
 
 
