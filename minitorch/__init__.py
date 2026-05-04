@@ -21,10 +21,15 @@ from .optim import SGD
 from .testing import MathTestVariable, grad_check, sum_practice, mm_practice
 from .tensor_ops import SimpleBackend
 from .module import Module, Parameter
-from .tensor_functions import Conv1dFun, Conv2dFun  # NEW: convolution autodiff wrappers
+from .tensor_functions import Conv1dFun, Conv2dFun      # Added in Chapter 2
+from .nn import (                                        # NEW: nn.py exports
+    avgpool2d, maxpool2d, softmax, logsoftmax, dropout,
+    max, Linear, Conv1d, Conv2d, one_hot, no_grad, argmax,
+)
 from .fast_ops import *  # noqa: F401,F403
 from .tensor_ops import *  # noqa: F401,F403
 from .cuda_ops import CudaOps
+
 
 
 
