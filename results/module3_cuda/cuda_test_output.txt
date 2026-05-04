@@ -1,0 +1,52 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-8.4.2, pluggy-1.6.0
+rootdir: /kaggle/working/minitorch-Jisan-Ahmed
+plugins: hypothesis-6.152.4, anyio-4.12.1, langsmith-0.7.6, typeguard-4.5.1
+collected 53 items / 21 deselected / 32 selected
+
+tests/test_tensor_general_.py ................................           [100%]
+
+=============================== warnings summary ===============================
+tests/test_tensor_general_.py: 15 warnings
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/dispatcher.py:696: NumbaPerformanceWarning: [1mGrid size 1 will likely result in GPU under-utilization due to low occupancy.[0m
+    warn(errors.NumbaPerformanceWarning(msg))
+
+tests/test_tensor_general_.py: 44 warnings
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/cudadrv/devicearray.py:934: NumbaPerformanceWarning: [1mHost array used in CUDA kernel will incur copy overhead to/from device.[0m
+    warn(NumbaPerformanceWarning(msg))
+
+tests/test_tensor_general_.py::test_one_args[cuda-fn1]
+tests/test_tensor_general_.py::test_one_args[cuda-fn2]
+tests/test_tensor_general_.py::test_one_derivative[cuda-fn0]
+tests/test_tensor_general_.py::test_one_derivative[cuda-fn4]
+tests/test_tensor_general_.py::test_sum_practice
+tests/test_tensor_general_.py::test_bmm[cuda]
+tests/test_tensor_general_.py::test_bmm[cuda]
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/dispatcher.py:696: NumbaPerformanceWarning: [1mGrid size 2 will likely result in GPU under-utilization due to low occupancy.[0m
+    warn(errors.NumbaPerformanceWarning(msg))
+
+tests/test_tensor_general_.py::test_one_derivative[cuda-fn0]
+tests/test_tensor_general_.py::test_one_derivative[cuda-fn1]
+tests/test_tensor_general_.py::test_bmm[cuda]
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/dispatcher.py:696: NumbaPerformanceWarning: [1mGrid size 3 will likely result in GPU under-utilization due to low occupancy.[0m
+    warn(errors.NumbaPerformanceWarning(msg))
+
+tests/test_tensor_general_.py::test_mul_practice4
+tests/test_tensor_general_.py::test_bmm[cuda]
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/dispatcher.py:696: NumbaPerformanceWarning: [1mGrid size 4 will likely result in GPU under-utilization due to low occupancy.[0m
+    warn(errors.NumbaPerformanceWarning(msg))
+
+tests/test_tensor_general_.py::test_mul_practice5
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/dispatcher.py:696: NumbaPerformanceWarning: [1mGrid size 8 will likely result in GPU under-utilization due to low occupancy.[0m
+    warn(errors.NumbaPerformanceWarning(msg))
+
+tests/test_tensor_general_.py::test_bmm[cuda]
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/dispatcher.py:696: NumbaPerformanceWarning: [1mGrid size 5 will likely result in GPU under-utilization due to low occupancy.[0m
+    warn(errors.NumbaPerformanceWarning(msg))
+
+tests/test_tensor_general_.py::test_bmm[cuda]
+  /usr/local/lib/python3.12/dist-packages/numba_cuda/numba/cuda/dispatcher.py:696: NumbaPerformanceWarning: [1mGrid size 6 will likely result in GPU under-utilization due to low occupancy.[0m
+    warn(errors.NumbaPerformanceWarning(msg))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+========== 32 passed, 21 deselected, 74 warnings in 63.14s (0:01:03) ===========

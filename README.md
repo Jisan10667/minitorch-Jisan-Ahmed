@@ -96,6 +96,28 @@ MNIST note: this repository does not currently include an MNIST training script,
 
 A CUDA thread block is a group of GPU threads that execute together on one streaming multiprocessor and can coordinate through synchronization barriers. In tiled matrix multiplication, shared memory is used to cache small tiles of the input matrices so many threads can reuse the same values without repeatedly reading slower global memory. This improves arithmetic intensity because each loaded tile contributes to many multiply-add operations. The Numba CPU implementation in `fast_ops.py` uses `@njit(parallel=True)` and `prange` to distribute loop iterations across CPU threads, while the CUDA approach maps work to thousands of lightweight GPU threads organized into blocks and explicitly manages shared memory.
 
+## CUDA Bonus Verification
+
+The CUDA bonus tests were verified in a Kaggle Notebook with GPU enabled.
+
+```text
+platform linux -- Python 3.12.12
+tests/test_tensor_general_.py ................................ [100%]
+32 passed, 21 deselected, 74 warnings in 63.14s
+```
+
+The warnings were Numba performance warnings about small test grids and host/device copy overhead in the test cases; all selected CUDA tests passed.
+
+## Module 3 Rubric Checklist
+
+| Requirement | Status | Evidence |
+| --- | --- | --- |
+| 3.1 Numba `tensor_map` and `tensor_zip` | Done | `task3_1: 19 passed, 2 deselected` |
+| 3.2 Fast matrix multiply | Done | `task3_2: 2 passed, 19 deselected` |
+| 3.3 CUDA reading response | Done | See CUDA Reading Response above |
+| 3.4 CPU benchmark | Done | 128x128 benchmark table shows `71.72x` speedup |
+| CUDA bonus | Done | Kaggle GPU run: `32 passed, 21 deselected` |
+
 ## Module Design Decisions
 
 | Module | Key design decision |
@@ -111,6 +133,7 @@ A CUDA thread block is a group of GPU threads that execute together on one strea
 ```bash
 venv/bin/python -m pytest tests/test_tensor_general_.py -m task3_1
 venv/bin/python -m pytest tests/test_tensor_general_.py -m task3_2
+python -m pytest tests/test_tensor_general_.py -m "task3_3 or task3_4"
 venv/bin/python verify_grads.py
 ```
 
@@ -119,5 +142,6 @@ Recent results:
 ```text
 task3_1: 19 passed, 2 deselected
 task3_2: 2 passed, 19 deselected
+task3_3/task3_4 on Kaggle GPU: 32 passed, 21 deselected
 verify_grads.py: all gradient checks passed within 1e-4
 ```
