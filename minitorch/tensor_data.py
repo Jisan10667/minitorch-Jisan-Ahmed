@@ -1,6 +1,7 @@
 from __future__ import annotations
 import random
 from typing import Iterable, Optional, Sequence, Tuple, Union
+import numba
 import numpy as np
 import numpy.typing as npt
 from numpy import array, float64
@@ -149,7 +150,11 @@ class TensorData:
         assert len(self._storage) == self.size
 
     def to_cuda_(self) -> None:  # pragma: no cover
-        if not numba.cuda.is_cuda_array(self._storage):
+        if hasattr(numba.cuda, "is_cuda_array"):
+            is_cuda_array = numba.cuda.is_cuda_array(self._storage)
+        else:
+            is_cuda_array = hasattr(self._storage, "__cuda_array_interface__")
+        if not is_cuda_array:
             self._storage = numba.cuda.to_device(self._storage)
 
     def is_contiguous(self) -> bool:

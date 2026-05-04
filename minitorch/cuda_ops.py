@@ -3,12 +3,32 @@ import numba
 import numpy as np
 from .tensor_data import (
     MAX_DIMS,
-    to_index,
-    index_to_position,
-    broadcast_index,
 )
 
 THREADS_PER_BLOCK = 32
+
+@cuda.jit(device=True)
+def to_index(ordinal, shape, out_index):
+    cur_ord = ordinal
+    for i in range(len(shape) - 1, -1, -1):
+        out_index[i] = cur_ord % shape[i]
+        cur_ord = cur_ord // shape[i]
+
+@cuda.jit(device=True)
+def index_to_position(index, strides):
+    position = 0
+    for i in range(len(strides)):
+        position += index[i] * strides[i]
+    return position
+
+@cuda.jit(device=True)
+def broadcast_index(big_index, big_shape, shape, out_index):
+    offset = len(big_shape) - len(shape)
+    for i in range(len(shape)):
+        if shape[i] == 1:
+            out_index[i] = 0
+        else:
+            out_index[i] = big_index[i + offset]
 
 def tensor_map(fn):
     f = cuda.jit(device=True)(fn)
@@ -190,8 +210,9 @@ class CudaOps:
     @staticmethod
     def map(fn):
         f = tensor_map(fn)
-        def ret(a):
-            out = a.zeros(a.shape)
+        def ret(a, out=None):
+            if out is None:
+                out = a.zeros(a.shape)
             blockspergrid = (out.size + THREADS_PER_BLOCK - 1) // THREADS_PER_BLOCK
             f[blockspergrid, THREADS_PER_BLOCK](
                 out._tensor._storage, out._tensor._shape, out._tensor._strides, out.size,
