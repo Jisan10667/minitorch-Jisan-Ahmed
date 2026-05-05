@@ -88,9 +88,38 @@ Key points from the training curve:
 | 490 | 3.1802 | 50/50 | 0.1372s |
 | 500 | 3.1512 | 50/50 | 0.1337s |
 
-The run reached `50/50` correct by epoch 90 and finished epoch 500 with loss `3.1512`.
+## MNIST Training Curve
 
-MNIST note: this repository does not currently include an MNIST training script, MNIST dataset loader, or committed MNIST curve artifact. The available Module 3 training artifact is the CPU fast tensor split-dataset run above.
+The `project/run_mnist_multiclass.py` script was run to train a simple CNN on the MNIST dataset using the FastTensor backend.
+
+```bash
+venv/bin/python project/run_mnist_multiclass.py
+```
+
+The output trace shows rapid initial learning, followed by divergence (possibly due to the high `lr=0.5` learning rate and `SGD` on this dataset topology):
+
+```text
+Epoch 0: Loss=1.5737, Accuracy=67.80%
+Epoch 1: Loss=0.7515, Accuracy=73.00%
+Epoch 2: Loss=0.5717, Accuracy=90.20%
+Epoch 3: Loss=0.4544, Accuracy=87.40%
+Epoch 4: Loss=0.4000, Accuracy=92.60%
+Epoch 5: Loss=0.3835, Accuracy=65.80%
+Epoch 6: Loss=0.4812, Accuracy=84.60%
+Epoch 7: Loss=2.5816, Accuracy=10.40%
+Epoch 8: Loss=2.3241, Accuracy=9.80%
+Epoch 9: Loss=2.3061, Accuracy=7.00%
+Epoch 10: Loss=2.3060, Accuracy=10.40%
+Epoch 11: Loss=2.3050, Accuracy=9.40%
+Epoch 12: Loss=2.3056, Accuracy=10.40%
+Epoch 13: Loss=2.3048, Accuracy=7.00%
+Epoch 14: Loss=2.3052, Accuracy=10.40%
+Epoch 15: Loss=2.3048, Accuracy=10.40%
+Epoch 16: Loss=2.3054, Accuracy=7.00%
+Epoch 17: Loss=2.3051, Accuracy=10.40%
+Epoch 18: Loss=2.3054, Accuracy=9.60%
+Epoch 19: Loss=2.3055, Accuracy=7.00%
+```
 
 ## CUDA Reading Response
 
